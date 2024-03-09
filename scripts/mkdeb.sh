@@ -42,23 +42,23 @@ NAME="AntOS_${TAG}_${archname}"
 FILE="$NAME.deb"
 TMP="/tmp/$NAME"
 [ -d "$TMP" ] && rm -rf "$TMP"
-mkdir -p $TMP
+mkdir -p "$TMP"
 
 echo "Copying binaries of version $TAG, architecture $ARCH to $TMP"
-cp $DIR/opt  $TMP/ -rf
-cd $TMP
+cp "$DIR/opt"  "$TMP/" -rf
+cd "$TMP"
 mkdir DEBIAN
 
 cat << EOF >> DEBIAN/control
 Package: AntOS
 Version: $TAG
 Architecture: $archname
-Depends: libsqlite3-0,zlib1g,libreadline8,libssl1.1,libvncclient1,libjpeg-turbo8 | libturbojpeg0
-Maintainer: Dany LE <mrsang@iohub.dev>
-Description: All-in-one AntOS remote web-based desktop environment
+Depends: libsqlite3-0,zlib1g,libreadline8,libssl3,libvncclient1,libjpeg-turbo8 | libturbojpeg0 | libjpeg62-turbo
+Maintainer: Dany LE <dany@iohub.dev>
+Description: All-in-one AntOS web-based remote desktop environment
 EOF
 cat DEBIAN/control
 cd ..
-dpkg-deb --build $TMP
+dpkg-deb --build "$TMP"
 mv "$FILE" "$DIR/"
 

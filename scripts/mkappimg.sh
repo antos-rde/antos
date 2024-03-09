@@ -6,25 +6,22 @@ arch=$1
 tag=$2
 DIR=$3
 logo=$4
-[ -z $arch ] && echo "1. No architecture provided" && exit 1
-[ -z $tag ] && echo "2. No version provided" && exit 1
-[ -z $DIR ] && echo "3. No input dir provided" && exit 1
-[ -z $logo ] && echo "4. No logo file provided" && exit 1
+[ -z "$arch" ] && echo "1. No architecture provided" && exit 1
+[ -z "$tag" ] && echo "2. No version provided" && exit 1
+[ -z "$DIR" ] && echo "3. No input dir provided" && exit 1
+[ -z "$logo" ] && echo "4. No logo file provided" && exit 1
 # download the appimagetools
 echo "Downloading the appimage tools"
 archname=x86_64
 case $arch in
     amd64|x86_64)
         archname=x86_64
-        suffix=x86_64
         ;;
     aarch64|arm64)
         archname=aarch64
-        suffix=aarch64
         ;;
     armv7l|arm)
         archname=armhf
-        suffix=armv7l
         ;;
     *)
         echo "Unkown architecture"
@@ -46,7 +43,7 @@ echo "Building app image for $arch"
 
 mkdir -p "$APP_DIR"
 
-cp -rf $DIR/opt "$APP_DIR"
+cp -rf "$DIR/opt" "$APP_DIR"
 rm -rf $APP_DIR/opt/www/include || true
 rm -rf $APP_DIR/opt/www/etc/* || true
 
@@ -186,6 +183,6 @@ Categories=Utility;
 Terminal=true
 EOF
 
-cp $logo $APP_DIR/antos.png
+cp "$logo" "$APP_DIR/antos.png"
 
-$APP_IMG --runtime-file $APP_RUNT $APP_DIR $DIR/$NAME.AppImage
+$APP_IMG --runtime-file $APP_RUNT $APP_DIR "$DIR/$NAME.AppImage"

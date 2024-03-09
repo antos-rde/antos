@@ -1,10 +1,8 @@
-FROM  ubuntu:jammy AS deploy-env
+FROM  debian:bookworm AS deploy-env
 ARG tag
 COPY deps/ /
 
-RUN dpkg -i /libssl1.1_1.1.1f-$(uname -m).deb
-# manual install libssl1.1
-RUN apt-get update && apt-get --yes --no-install-recommends install libsqlite3-0 zlib1g libreadline8 wget libvncclient1 libjpeg-turbo8 openssh-client tar tree
+RUN apt-get update && apt-get --yes --no-install-recommends install libsqlite3-0 zlib1g libreadline8 wget libssl3 libvncclient1 libturbojpeg0 openssh-client tar tree
 RUN apt clean &&  rm -rf /var/lib/apt/lists/*
 RUN mkdir /ulib
 RUN cp -rf /lib/*-linux-*/libsqlite3*.so* /ulib
@@ -61,7 +59,7 @@ RUN chown -R root:root /platform
 RUN tree /platform
 RUN ls -al /platform
 
-FROM busybox:stable-glibc 
+FROM busybox:1.36.1-glibc 
 #copy all necessary libraries
 COPY --from=deploy-env /ulib/ /lib/
 COPY --from=deploy-env /bin/wget /bin/ 
