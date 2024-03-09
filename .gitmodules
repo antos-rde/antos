@@ -1,0 +1,33 @@
+[submodule "antos-frontend"]
+	path = antos-frontend
+	url = https://github.com/antos-rde/antos-frontend.git
+[submodule "antos-backend"]
+	path = antos-backend
+	url = https://github.com/antos-rde/antos-backend.git
+[submodule "antd/ant-http"]
+	path = antd/ant-http
+	url = https://github.com/lxsang/ant-http
+[submodule "antd/luafcgi"]
+	path = antd/luafcgi
+	url = https://git.iohub.dev/dany/luafcgi.git
+[submodule "antd/antd-fcgi-plugin"]
+	path = antd/antd-fcgi-plugin
+	url = https://github.com/lxsang/antd-fcgi-plugin.git
+[submodule "antd/antd-tunnel-plugin"]
+	path = antd/antd-tunnel-plugin
+	url = https://github.com/lxsang/antd-tunnel-plugin.git
+[submodule "antd/antd-wvnc-plugin"]
+	path = antd/antd-wvnc-plugin
+	url = https://github.com/lxsang/antd-wvnc-plugin.git
+[submodule "antd/antd-tunnel-publishers"]
+	path = antd/antd-tunnel-publishers
+	url = https://github.com/lxsang/antd-tunnel-publishers.git
+[submodule "antd/luasocket"]
+	path = antd/luasocket
+	url = https://git.iohub.dev/dany/luasocket.git
+[submodule "antd/luasec"]
+	path = antd/luasec
+	url = https://git.iohub.dev/dany/luasec.git
+[submodule "antd/silk"]
+	path = antd/silk
+	url = https://github.com/lxsang/silk.git
