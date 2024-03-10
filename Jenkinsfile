@@ -1,9 +1,7 @@
 pipeline {
     agent {
-        docker {
-            image 'xsangle/ci-tools:latest'
-            reuseNode true
-            args ' --device /dev/fuse --privileged '
+        agent {
+            node { label'master' }
         }
     }
     options {
@@ -40,6 +38,13 @@ pipeline {
             }
         }
         stage('Build AMD64)') {
+            agent {
+                docker {
+                    image 'xsangle/ci-tools:latest'
+                    reuseNode true
+                    args ' --device /dev/fuse --privileged '
+                }
+            }
             steps {
                 sh'''
                 DESTDIR=$(realpath build) \
@@ -51,6 +56,13 @@ pipeline {
             }
         }
         stage('Build ARM64)') {
+            agent {
+                docker {
+                    image 'xsangle/ci-tools:latest'
+                    reuseNode true
+                    args ' --device /dev/fuse --privileged '
+                }
+            }
             steps {
                 sh'''
                 DESTDIR=$(realpath build) \
@@ -62,6 +74,13 @@ pipeline {
             }
         }
         stage('Build ARM)') {
+            agent {
+                docker {
+                    image 'xsangle/ci-tools:latest'
+                    reuseNode true
+                    args ' --device /dev/fuse --privileged '
+                }
+            }
             steps {
                 sh'''
                 DESTDIR=$(realpath build) \
@@ -73,6 +92,9 @@ pipeline {
             }
         }
         stage('Checking build)') {
+            agent {
+                node { label'workstation' }
+            }
             steps {
                 sh'''
                 ./scripts/ckarch.sh build
