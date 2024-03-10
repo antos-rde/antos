@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        node { label'master' }
+        node { label'workstation' }
     }
     options {
         // Limit build history with buildDiscarder option:
@@ -21,9 +21,6 @@ pipeline {
     stages
     {
         stage('Prepare dependencies') {
-            agent {
-                node { label'workstation' }
-            }
             steps {
                 sh'''
                 cd antd/luasocket && git stash || true
@@ -90,9 +87,6 @@ pipeline {
             }
         }
         stage('Checking build)') {
-            agent {
-                node { label'workstation' }
-            }
             steps {
                 sh'''
                 ./scripts/ckarch.sh build
@@ -100,9 +94,6 @@ pipeline {
             }
         }
         stage('Build docker') {
-            agent {
-                node { label'workstation' }
-            }
             steps {
                 script {
                     if (env.TAG_NAME) {
