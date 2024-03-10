@@ -1,13 +1,11 @@
 FROM  debian:bookworm AS deploy-env
-ARG tag
-COPY deps/ /
 
 RUN apt-get update && apt-get --yes --no-install-recommends install libsqlite3-0 zlib1g libreadline8 wget libssl3 libvncclient1 libturbojpeg0 openssh-client tar tree
 RUN apt clean &&  rm -rf /var/lib/apt/lists/*
 RUN mkdir /ulib
 RUN cp -rf /lib/*-linux-*/libsqlite3*.so* /ulib
 RUN cp -rf /lib/*-linux-*/libreadline*.so* /ulib
-RUN cp -rf /lib/*-linux-*/libncurse*.so* /ulib
+# RUN cp -rf /lib/*-linux-*/libncurse*.so* /ulib
 RUN cp -rf /lib/*-linux-*/libz*.so* /ulib
 RUN cp -rf /lib/*-linux-*/libcrypt*.so* /ulib
 RUN cp -rf /lib/*-linux-*/libdl*.so* /ulib
@@ -50,14 +48,10 @@ RUN cp -rf /lib/*-linux-*/libcom_err*.so* /ulib
 RUN cp -rf /lib/*-linux-*/libkrb5support*.so* /ulib
 RUN cp -rf /lib/*-linux-*/libkeyutils*.so* /ulib
 
-
-# antos
+RUN mkdir /build
+COPY build/ /build/
 RUN mkdir /platform
-COPY antos-release/ /
-RUN tar -xzf /build/$tag/AntOS_$(uname -m).tar.gz -C /platform/
-RUN chown -R root:root /platform
-RUN tree /platform
-RUN ls -al /platform
+RUN cp -rf /build/$(uname -m)/* /platform/
 
 FROM busybox:1.36.1-glibc 
 #copy all necessary libraries
@@ -66,18 +60,13 @@ COPY --from=deploy-env /bin/wget /bin/
 COPY --from=deploy-env /usr/bin/ssh /bin/
 COPY --from=deploy-env /usr/bin/ssh-keygen /bin/
 COPY --from=deploy-env /usr/bin/ssh-copy-id /bin/
-COPY bash /bin/bash
-COPY profile /etc/profile
-RUN chmod a+x /bin/bash
-# copy backend
-COPY --from=deploy-env /platform/ /
-# copy frontend
-COPY antd-config.ini /opt/www/antd-config.ini
-COPY runner.ini /opt/www/runner.ini
-RUN chmod 744 /opt/www/antd-config.ini
-RUN chmod 744 /opt/www/runner.ini
+COPY docker/antos/profile /etc/profile
+COPY --from=deploy-env /platform/opt/ /lib/opt/
 
-COPY start.sh /start.sh
+COPY docker/antos/start.sh /start.sh
 RUN chmod 700 /start.sh
+
+ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/www/lib/"
+ENV PATH="$PATH:/opt/www/bin/"
 # start the entry point
 ENTRYPOINT /start.sh

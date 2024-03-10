@@ -1,13 +1,16 @@
 
 ROOT_DIR:=$(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
-TAG:=$(subst master,stable,$(subst refs/heads/,,$(shell git symbolic-ref -q HEAD)))
+DOCKER_TAG?=$(subst master,stable,$(subst refs/heads/,,$(shell git symbolic-ref -q HEAD)))
+
+DOCKER_IMAGE?=iohubdev/antos
 
 ARCH?=amd64
 VERSION?=2.0.0-b
 
 RUSTUP_HOME?=/opt/rust
 CARGO_HOME?=/opt/rust/cargo
-DESTDIR?=$(ROOT_DIR)/build/
+BUILDDIR?=$(ROOT_DIR)/build/
+DESTDIR?=/
 
 ifeq ('$(ARCH)','amd64')
 RUST_TARGET?=x86_64-unknown-linux-gnu
@@ -30,7 +33,7 @@ endif
 CC:=$(CC_PREFIX)gcc
 CXX:=$(CC_PREFIX)g++
 BUILD_PREFIX:=/opt/www
-INSTALL_DIR:=$(DESTDIR)/$(ARCH)/$(BUILD_PREFIX)
+INSTALL_DIR:=$(BUILDDIR)/$(ARCH)/$(BUILD_PREFIX)
 
 BUILDID:=$(shell git rev-parse  --short HEAD)
 
@@ -51,7 +54,7 @@ antd: httpd plugins luasec luasocket silk luafcgi
 httpd: clean_c
 	cd $(ROOT_DIR)/antd/ant-http && libtoolize && aclocal && autoconf && automake --add-missing
 	cd $(ROOT_DIR)/antd/ant-http  && ./configure $(HOST) --prefix=$(BUILD_PREFIX)
-	DESTDIR=$(DESTDIR)/$(ARCH) make -C $(ROOT_DIR)/antd/ant-http install
+	DESTDIR=$(BUILDDIR)/$(ARCH) make -C $(ROOT_DIR)/antd/ant-http install
 
 plugins: antd-fcgi-plugin antd-tunnel-plugin antd-wvnc-plugin antd-tunnel-publishers
 	@echo "Finish making plugins"
@@ -66,7 +69,7 @@ luasec: clean_c
 		make -C $(ROOT_DIR)/antd/luasec linux
 	CC=$(CC) \
 	INC_PATH=-I$(ROOT_DIR)/antd/silk/modules/lua/lua54/ \
-		DESTDIR=$(DESTDIR)/$(ARCH) \
+		DESTDIR=$(BUILDDIR)/$(ARCH) \
 		LUAPATH=/opt/www/lib/lua \
 		LUACPATH=/opt/www/lib/lua \
 		make -C $(ROOT_DIR)/antd/luasec install
@@ -88,7 +91,7 @@ luasocket: clean_c
 		LUAINC_linux=$(ROOT_DIR)/antd/silk/modules/lua/lua54/ \
 		LUAPREFIX_linux=$(BUILD_PREFIX) \
 		PLAT=linux \
-		DESTDIR=$(DESTDIR)/$(ARCH) make -C $(ROOT_DIR)/antd/luasocket install-unix
+		DESTDIR=$(BUILDDIR)/$(ARCH) make -C $(ROOT_DIR)/antd/luasocket install-unix
 	-mkdir -p $(INSTALL_DIR)/lib/lua
 	cp -rf $(INSTALL_DIR)/lib/lua/5.4/* $(INSTALL_DIR)/lib/lua/
 	cp -rf $(INSTALL_DIR)/share/lua/5.4/* $(INSTALL_DIR)/lib/lua/
@@ -99,7 +102,7 @@ antd-% sil%: clean_c
 	cd $(ROOT_DIR)/antd/$@ && libtoolize && aclocal && autoconf && automake --add-missing
 	cd $(ROOT_DIR)/antd/$@  && CFLAGS="-I$(INSTALL_DIR)/include" LDFLAGS="-L$(INSTALL_DIR)/lib" \
 		./configure $(HOST) --prefix=$(BUILD_PREFIX)
-	DESTDIR=$(DESTDIR)/$(ARCH) make -C $(ROOT_DIR)/antd/$@ install
+	DESTDIR=$(BUILDDIR)/$(ARCH) make -C $(ROOT_DIR)/antd/$@ install
 
 luafcgi:
 ifeq ($(LUAFCGI_IGNORE),)
@@ -128,6 +131,16 @@ clean_c:
 	-make -C antd/luasocket clean
 	-make -C antd/silk clean
 
+install: 
+	cd $(INSTALL_DIR) && find . -type f,l \
+		-exec install -Dm 755 "{}" "$(DESTDIR)/$(BUILD_PREFIX)/{}" \;
+
+uninstall:
+	cd $(INSTALL_DIR) && find . -type f,l \
+		-exec rm "$(DESTDIR)/$(BUILD_PREFIX)/{}" \;
+	find $(DESTDIR)/$(BUILD_PREFIX) -type d -empty -delete
+	
+
 clean: clean_c
 	@echo "Clean Rust project and output DIR"
 	RUSTUP_HOME=$(RUSTUP_HOME) CARGO_HOME=$(CARGO_HOME) \
@@ -136,7 +149,7 @@ clean: clean_c
 		cargo clean \
 		--manifest-path=$(ROOT_DIR)/antd/luafcgi/Cargo.toml \
 		--config=$(ROOT_DIR)/antd/luafcgi/.cargo/config.toml
-	-rm -rf $(DESTDIR)/*
+	-rm -rf $(BUILDDIR)/*
 
 backend:
 	@echo "Building $@"
@@ -153,15 +166,27 @@ else
 endif
 
 deb:
-	-rm $(DESTDIR)/$(ARCH)/*.deb
-	scripts/mkdeb.sh $(VERSION_STR) $(ARCH) $(DESTDIR)/$(ARCH)
+	-rm $(BUILDDIR)/$(ARCH)/*.deb
+	scripts/mkdeb.sh $(VERSION_STR) $(ARCH) $(BUILDDIR)/$(ARCH)
 
 tar.gz: antos
-	-rm $(DESTDIR)/$(ARCH)/$(PKG_NAME).tar.gz
-	cd $(DESTDIR)/$(ARCH)/ && tar cvzf  $(PKG_NAME).tar.gz opt
+	-rm $(BUILDDIR)/$(ARCH)/$(PKG_NAME).tar.gz
+	cd $(BUILDDIR)/$(ARCH)/ && tar cvzf  $(PKG_NAME).tar.gz opt
 
 appimg:
-	-rm $(DESTDIR)/$(ARCH)/*.AppImage
-	scripts/mkappimg.sh $(ARCH) $(VERSION_STR) $(DESTDIR)/$(ARCH) $(ROOT_DIR)/antos-64.png
+	-rm $(BUILDDIR)/$(ARCH)/*.AppImage
+	scripts/mkappimg.sh $(ARCH) $(VERSION_STR) $(BUILDDIR)/$(ARCH) $(ROOT_DIR)/antos-64.png
 
-.PHONY: antd antos
+docker:
+	ln -sfn arm $(BUILDDIR)/armv7l
+	ln -sfn arm64 $(BUILDDIR)/aarch64
+	ln -sfn amd64 $(BUILDDIR)/x86_64
+	docker buildx build \
+		--platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
+		--tag $(DOCKER_IMAGE):$(DOCKER_TAG) \
+		-f docker/antos/Dockerfile \
+		--push \
+		.
+	rm $(BUILDDIR)/aarch64 $(BUILDDIR)/armv7l $(BUILDDIR)/x86_64
+# --push 
+.PHONY: antd antos docker

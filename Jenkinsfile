@@ -79,6 +79,22 @@ pipeline {
                 '''
             }
         }
+        stage('Build docker') {
+            agent {
+                node { label'workstation' }
+            }
+            steps {
+                script {
+                    if (env.TAG_NAME) {
+                        sh'''
+                        DOCKER_TAG=$TAG_NAME DOCKER_IMAGE=iohubdev/antos make docker
+                        '''
+                    } else {
+                        echo "Regular commit doing nothing"
+                    }
+                }
+            }
+        }
         stage('Archive') {
             steps {
                 script {
