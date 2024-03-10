@@ -1,8 +1,6 @@
 pipeline {
     agent {
-        agent {
-            node { label'master' }
-        }
+        node { label'master' }
     }
     options {
         // Limit build history with buildDiscarder option:
