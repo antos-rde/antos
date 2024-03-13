@@ -61,7 +61,7 @@ plugins: antd-fcgi-plugin antd-tunnel-plugin antd-wvnc-plugin antd-tunnel-publis
 
 luasec: clean_c
 	@echo "Building $@"
-	lua5.3 $(ROOT_DIR)/antd/luasec/src/options.lua -g \
+	lua $(ROOT_DIR)/antd/luasec/src/options.lua -g \
 		/usr/include/openssl/ssl.h \
 		> $(ROOT_DIR)/antd/luasec/src/options.c
 	CC=$(CC) \
@@ -100,7 +100,9 @@ luasocket: clean_c
 antd-% sil%: clean_c
 	@echo "Building $@"
 	cd $(ROOT_DIR)/antd/$@ && libtoolize && aclocal && autoconf && automake --add-missing
-	cd $(ROOT_DIR)/antd/$@  && CFLAGS="-I$(INSTALL_DIR)/include" LDFLAGS="-L$(INSTALL_DIR)/lib" \
+	cd $(ROOT_DIR)/antd/$@  && \
+		CFLAGS="-I$(INSTALL_DIR)/include"\
+		 LDFLAGS="-L$(INSTALL_DIR)/lib" \
 		./configure $(HOST) --prefix=$(BUILD_PREFIX)
 	DESTDIR=$(BUILDDIR)/$(ARCH) make -C $(ROOT_DIR)/antd/$@ install
 
@@ -178,15 +180,7 @@ appimg:
 	scripts/mkappimg.sh $(ARCH) $(VERSION_STR) $(BUILDDIR)/$(ARCH) $(ROOT_DIR)/antos-64.png
 
 docker:
-	ln -sfn arm $(BUILDDIR)/armv7l
-	ln -sfn arm64 $(BUILDDIR)/aarch64
-	ln -sfn amd64 $(BUILDDIR)/x86_64
-	docker buildx build \
-		--platform linux/arm/v7,linux/arm64/v8,linux/amd64 \
-		--tag $(DOCKER_IMAGE):$(DOCKER_TAG) \
-		-f docker/antos/Dockerfile \
-		--push \
-		.
-	rm $(BUILDDIR)/aarch64 $(BUILDDIR)/armv7l $(BUILDDIR)/x86_64
+	scripts/mkdocker.sh $(DOCKER_IMAGE):$(DOCKER_TAG)
+	
 # --push 
 .PHONY: antd antos docker
