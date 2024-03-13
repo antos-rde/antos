@@ -61,7 +61,7 @@ COPY --from=deploy-env /usr/bin/ssh /bin/
 COPY --from=deploy-env /usr/bin/ssh-keygen /bin/
 COPY --from=deploy-env /usr/bin/ssh-copy-id /bin/
 COPY docker/antos/profile /etc/profile
-COPY --from=deploy-env /platform/opt/ /lib/opt/
+COPY --from=deploy-env /platform/opt/ /opt/
 
 COPY docker/antos/start.sh /start.sh
 RUN chmod 700 /start.sh
