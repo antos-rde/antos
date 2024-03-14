@@ -162,7 +162,7 @@ frontend:
 ifeq ($(FRONTEND_IGNORE),)
 	@echo "Building $@"
 	mkdir -p $(INSTALL_DIR)/htdocs/os
-	BUILDDIR=$(INSTALL_DIR)/htdocs/os make -C antos-frontend install_dev release
+	VERSION=$(VERSION) BUILDID=$(BUILDID) BUILDDIR=$(INSTALL_DIR)/htdocs/os make -C antos-frontend install_dev release
 else
 	@echo "Ignore building $@"
 endif
