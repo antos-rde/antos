@@ -5,7 +5,7 @@ DOCKER_TAG?=$(subst master,stable,$(subst refs/heads/,,$(shell git symbolic-ref 
 DOCKER_IMAGE?=iohubdev/antos
 
 ARCH?=amd64
-VERSION?=2.0.0-b
+VERSION?=2.1.0-b
 
 RUSTUP_HOME?=/opt/rust
 CARGO_HOME?=/opt/rust/cargo
@@ -44,6 +44,10 @@ all: antos tar.gz
 
 antos: antd backend frontend
 	cp $(ROOT_DIR)/README.md $(INSTALL_DIR)/htdocs/os
+	touch $(INSTALL_DIR)/htdocs/os/packages/.DENIED
+	touch $(INSTALL_DIR)/htdocs/os/libs/.DENIED
+	touch $(INSTALL_DIR)/htdocs/os/controllers/.DENIED
+	scripts/version.sh $(INSTALL_DIR)/htdocs/os/libs
 
 antd: httpd plugins luasec luasocket silk luafcgi
 	rm $(INSTALL_DIR)/runner.ini
