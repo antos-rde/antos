@@ -25,7 +25,7 @@ Github: [https://github.com/antos-rde](https://github.com/antos-rde)
 A demo of the VDE is available at  [https://app.iohub.dev/antos/](https://app.iohub.dev/antos/) using username: demo and password: demo.
 
 If one want to run AntOS VDE locally in their system, a docker image is available at:
-[https://hub.docker.com/r/xsangle/antosaio](https://hub.docker.com/r/xsangle/antosaio)
+[https://hub.docker.com/r/iohubdev/antos](https://hub.docker.com/r/iohubdev/antos)
 
 ## Build and install
 
