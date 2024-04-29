@@ -11,6 +11,8 @@ RUSTUP_HOME?=/opt/rust
 CARGO_HOME?=/opt/rust/cargo
 BUILDDIR?=$(ROOT_DIR)/build/
 DESTDIR?=/
+DOCDIR?=$(ROOT_DIR)/build/doc/
+SDKDIR?=$(ROOT_DIR)/build/sdk/
 
 ifeq ('$(ARCH)','amd64')
 RUST_TARGET?=x86_64-unknown-linux-gnu
@@ -185,6 +187,19 @@ appimg:
 
 docker:
 	scripts/mkdocker.sh $(DOCKER_IMAGE):$(DOCKER_TAG)
-	
+
+doc:
+	mkdir -p $(DOCDIR)/$(VERSION)
+	VERSION=$(VERSION) BUILDID=$(BUILDID) DOCDIR=$(DOCDIR)/$(VERSION) make -C antos-frontend doc
+
+sdk:
+	mkdir -p $(SDKDIR)/$(VERSION)
+	cp antos-frontend/d.ts/* $(SDKDIR)/$(VERSION)
+	-rm $(SDKDIR)/versions.txt
+	@for file in $(SDKDIR)/*; do \
+		echo $$file; \
+		echo $$(basename $$file) >> $(SDKDIR)/versions.txt; \
+	done
+
 # --push 
 .PHONY: antd antos docker

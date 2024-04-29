@@ -106,6 +106,23 @@ pipeline {
                 }
             }
         }
+        stage('Copy doc') {
+            steps {
+                sh'''
+                DOCDIR=/home/dany/public/antos-release/doc/ make doc
+                SDKDIR=/home/dany/public/antos-release/sdk/ make sdk
+                '''
+            }
+        }
+        stage('Copy Binaries') {
+            steps {
+                sh'''
+                BINDIR="/home/dany/public/antos-release/binaries/"
+                find ./build/ -name "*.deb" -exec install -Dm 755 "{}" "$BINDIR/deb" \\;
+                find ./build/ -name "*.AppImage" -exec install -Dm 755 "{}" "$BINDIR/appimg" \\;
+                '''
+            }
+        }
         stage('Archive') {
             steps {
                 script {
