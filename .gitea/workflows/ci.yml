@@ -1,0 +1,72 @@
+name: AntOS pipeline
+run-name: Building AntOS binaries
+on: [push]
+
+jobs:
+  build-amd64:
+    uses: ./.gitea/workflows/build-bin.yml
+    with:
+      platform: amd64
+  build-arm64:
+    uses: ./.gitea/workflows/build-bin.yml
+    with:
+      platform: arm64
+
+  build-arm:
+    uses: ./.gitea/workflows/build-bin.yml
+    with:
+      platform: arm
+
+  publish-on-tag:
+    runs-on: act-runner
+    if: gitea.event_name == 'push' && contains(gitea.ref, 'refs/tags/')
+    needs: [build-amd64, build-arm64, build-arm]
+    container:
+      image: catthehacker/ubuntu:act-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: mkdir -p build
+      - name: get build-amd64 artifacts
+        uses: actions/download-artifact@master
+        with:
+          name: build-amd64
+          path: build
+      - name: get build-arm64 artifacts
+        uses: actions/download-artifact@master
+        with:
+          name: build-arm64
+          path: build
+      - name: get build-arm artifacts
+        uses: actions/download-artifact@master
+        with:
+          name: build-arm
+          path: build
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@master
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@master
+      - name: Login to DockerHub
+        uses: docker/login-action@master
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PAT }}
+      - name: Env
+        run: |
+          printenv
+          docker info
+          ls . -al
+          ls build/ -al
+      - name: Build and push docker image
+        run: |
+          PKG_VERSION="${{ gitea.ref_name }}"
+          DOCKER_TAG=$PKG_VERSION DOCKER_IMAGE=iohubdev/antos make docker
+      - name: Publish packages
+        run: |
+          rm build/*/opt/ -rf
+          files=$(find ./build -type f)
+          PKG_VERSION="${{ gitea.ref_name }}"
+          URL="https://git.iohub.dev/api/packages/dany/generic/antos/$PKG_VERSION"
+          for file in $files; do
+            curl --header "Authorization: token ${{ secrets.GT_API_PAT }}" -v --upload-file $file $URL/$(basename $file)
+          done
