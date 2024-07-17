@@ -29,7 +29,11 @@ Work in progress
     git wget curl 
 ```
 
-Rust
+### Rust
+
+```sh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
 rustup default stable
 
 Install cross toolchain
@@ -52,7 +56,7 @@ libssl libsqlite3 zlib1g libreadline libvncclient1 libjpeg-turbo8
 ## Build
 ```
 git submodule update --init
-make
+CARGO_HOME=~/.cargo make
 
 # build docker (WIP)
 make docker
