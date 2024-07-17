@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -e
+set -x
 
 DOCKER_IMAGE=$1
 

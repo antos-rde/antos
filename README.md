@@ -1,5 +1,6 @@
 # ![https://github.com/antos-rde/antos/raw/master/antos-64.png](https://github.com/antos-rde/antos/raw/master/antos-64.png) antOS v2.0.0
-[![Build Status](https://ci.iohub.dev/buildStatus/icon?job=gitea-sync%2Fantos%2F2.0.x)](https://ci.iohub.dev/buildStatus/icon?job=gitea-sync%2Fantos%2F2.0.x)
+
+![https://git.iohub.dev/dany/antos/actions/workflows/ci.yml/badge.svg?branch=master](https://git.iohub.dev/dany/antos/actions/workflows/ci.yml/badge.svg?branch=master)
 
 AntOS is a web-based remote desktop environment that provides an all-in-one solution for setting up a cloud-based, self-hosted working environment. It features a backend API and services, a front-end web-based window manager, application APIs, a GUI toolkit, and file system abstractions. It also includes an application store and an SDK for in-browser application development, deployment, and packaging. AntOS is designed to work across devices, including desktop computers and mobile devices.
 

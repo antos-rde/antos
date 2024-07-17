@@ -1,0 +1,31 @@
+name: Building AntOS binaries
+on:
+  workflow_call:
+    inputs:
+      platform:
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ci-tools
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Update submodule
+        run: git submodule update --init
+      - name: Building binaries for platform - ${{ inputs.platform }}
+        run: |
+          mkdir build
+          DESTDIR=$(realpath build) \
+                    ARCH=${{ inputs.platform }} \
+                    RUSTUP_HOME=/opt/rust/rustup \
+                    CARGO_HOME=/opt/rust/cargo \
+                    make all deb appimg
+      - name: Save artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-${{ inputs.platform }}
+          path: build/
+          retention-days: 5
+      - run: echo "Build is ${{ job.status }}."
