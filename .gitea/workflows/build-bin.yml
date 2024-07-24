@@ -22,6 +22,8 @@ jobs:
                     RUSTUP_HOME=/opt/rust/rustup \
                     CARGO_HOME=/opt/rust/cargo \
                     make all deb appimg
+      - name: Checking binaries
+        run: ./scripts/ckarch.sh build
       - name: Save artifact
         uses: actions/upload-artifact@v3
         with:
