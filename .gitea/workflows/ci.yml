@@ -67,6 +67,7 @@ jobs:
           files=$(find ./build -type f)
           PKG_VERSION="${{ gitea.ref_name }}"
           URL="https://git.iohub.dev/api/packages/dany/generic/antos/$PKG_VERSION"
+          curl --request "DELETE" --header "Authorization: token ${{ secrets.GT_API_PAT }}" $URL/ || true
           for file in $files; do
-            curl --header "Authorization: token ${{ secrets.GT_API_PAT }}" -v --upload-file $file $URL/$(basename $file)
+            curl --header "Authorization: token ${{ secrets.GT_API_PAT }}" --upload-file $file $URL/$(basename $file)
           done
