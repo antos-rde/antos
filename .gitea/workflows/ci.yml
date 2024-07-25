@@ -33,6 +33,7 @@ jobs:
       - run: mkdir -p build
       - name: Build and publish doc and SDK
         run: |
+          make frontend
           DOCDIR=/public/doc/ make doc
           SDKDIR=/public/sdk/ make sdk
   
