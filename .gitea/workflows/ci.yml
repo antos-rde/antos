@@ -28,6 +28,8 @@ jobs:
     steps:
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Update submodule
+        run: git submodule update --init
       - run: mkdir -p build
       - name: Build and publish doc and SDK
         run: |
