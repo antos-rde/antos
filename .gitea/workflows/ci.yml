@@ -17,7 +17,24 @@ jobs:
     with:
       platform: arm
 
-  publish-on-tag:
+  publish-doc-on-tag:
+    runs-on: act-runner
+    if: gitea.event_name == 'push' && contains(gitea.ref, 'refs/tags/')
+    needs:
+    container:
+      image: iohubdev/ci-tools:latest
+      volumes:
+        - /opt/public/antos-release/:/public/
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: mkdir -p build
+      - name: Build and publish doc and SDK
+        run: |
+          DOCDIR=/public/doc/ make doc
+          SDKDIR=/public/sdk/ make sdk
+  
+  publish-package-on-tag:
     runs-on: act-runner
     if: gitea.event_name == 'push' && contains(gitea.ref, 'refs/tags/')
     needs: [build-amd64, build-arm64, build-arm]
