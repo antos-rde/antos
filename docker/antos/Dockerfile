@@ -65,6 +65,7 @@ COPY --from=deploy-env /platform/opt/ /opt/
 
 COPY docker/antos/start.sh /start.sh
 RUN chmod 700 /start.sh
+RUN chmod +x /opt/www/bin/*
 
 ENV LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/opt/www/lib/"
 ENV PATH="$PATH:/opt/www/bin/"
