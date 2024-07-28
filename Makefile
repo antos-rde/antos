@@ -5,7 +5,7 @@ DOCKER_TAG?=$(subst master,stable,$(subst refs/heads/,,$(shell git symbolic-ref 
 DOCKER_IMAGE?=iohubdev/antos
 
 ARCH?=amd64
-VERSION?=2.1.4-b
+VERSION?=2.1.5-b
 
 RUSTUP_HOME?=/opt/rust
 CARGO_HOME?=/opt/rust/cargo
