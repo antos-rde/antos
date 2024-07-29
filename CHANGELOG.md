@@ -1,4 +1,7 @@
 ## AntOS change logs
+* v2.1.4
+    - Frontend: ListView allows to navigate items using arrows keys
+    - Backend: GridView allows to navigate items using arrows keys
 * v2.1.3
     - Frontend: Calendar widget allows to change year
 * v2.1.2
